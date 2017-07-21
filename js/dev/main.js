@@ -69,11 +69,19 @@ function renderCart() {
 }
 
 twoForLineBtn.addEventListener('click', function(event) {
-  getCurrentClassState(this);
+  //getCurrentClassState(this);
+  twoForLineBtn.classList.add('catalog_view__item--active');
+  threeForLineBtn.classList.remove('catalog_view__item--active');
+  container.classList.add('catalog__list--two');
+  container.classList.remove('catalog__list--three');
 });
 
 threeForLineBtn.addEventListener('click', function(event) {
-  getCurrentClassState(this);
+  //getCurrentClassState(this);
+  twoForLineBtn.classList.remove('catalog_view__item--active');
+  threeForLineBtn.classList.add('catalog_view__item--active');
+  container.classList.add('catalog__list--three');
+  container.classList.remove('catalog__list--two');;
 });
 
 function getCurrentClassState(btn) {
@@ -273,8 +281,8 @@ function loadData(container, URL, callback) {
 loadData(container, URL, renderData);
 
 function sortArrByPrice(a, b) {
-  if ((a.priceNew) > (b.priceNew)) return -1;
-  if ((a.priceNew) < (b.priceNew)) return 1;
+  if ((a.priceNew) > (b.priceNew)) return 1;
+  if ((a.priceNew) < (b.priceNew)) return -1;
 }
 
 function sortArrByDiscount(a, b) {
