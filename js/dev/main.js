@@ -285,12 +285,14 @@ function sortByPrice(event) {
   event.preventDefault();
   var sortedArray = loadedData.sort(sortArrByPrice);
   renderData(sortedArray);
+  filterCatalog();
 }
 
 function sortByDiscount(event) {
   event.preventDefault();
   var sortedArray = loadedData.sort(sortArrByDiscount);
   renderData(sortedArray);
+  filterCatalog();
 }
 
 var filterTrigerList = document.querySelectorAll('.filter__title');
@@ -421,7 +423,6 @@ function filterCatalog() {
       }
     }
     //Date
-
     if (filters.date >= new Date().setDate(new Date().getDate() - 1)){
     if (new Date(filters.date) >= new Date(item.dataset.dateTo)) {
         shouldBeVisible *= 0;
