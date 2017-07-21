@@ -1,38 +1,72 @@
-// var catalogInter = document.querySelector('.catalog_basket__summ');
-// var buyBtn = catalogInter.querySelector('.btn');
-// var orderPopup = document.querySelector('.modal_order');
-// var closePopupBtn = orderPopup.querySelector('.modal__close');
-// var bascetLines = document.querySelectorAll('.catalog_basket__line');
-// var basketlist = document.querySelector('.catalog_basket__list');
-// var catalogItems = document.querySelectorAll('.catalog__item');
+var catalogInter = document.querySelector('.catalog_basket__summ');
+var loader = document.querySelector('.loader');
+var modalUnderlay = document.querySelector('.modal_underlay');
+var buyBtn = catalogInter.querySelector('.btn');
+var orderPopup = document.querySelector('.modal_order');
+var closePopupBtn = orderPopup.querySelector('.modal__close');
+var modalSuccess = document.querySelector('.modal_success');
 var loadedData = null;
 var twoForLineBtn1 = document.querySelector('.catalog_view');
 twoForLineBtn = twoForLineBtn1.children["0"];
 var threeForLineBtn = document.querySelectorAll('.catalog_view');
 threeForLineBtn = twoForLineBtn1.children["1"];
-// var catalogItems = document.querySelectorAll('.catalog__item');
-// var arrayCart = [];
-// var finalPrice = document.querySelector('.catalog_basket__summ_text');
-// var filterContent = document.querySelector('.filter__content');
 var LOAD_TIMEOUT = 10000;
 var URL = 'http://127.0.0.1:8080/generated.json';
 var container = document.querySelector('.catalog__list');
 var catalogItems = null;
-//var typeFiltration = [];
-//
-// // function createBasketItem() {
-// //   var newBasketItemTitel row.parentNode.parentNode.childNodes[3].innerText;
-// //   var newBasketItem = document.createElement('div');
-// //   newBasketItem.className = 'catalog_basket__line';
-// //   var productName = document.createElement('div');
-// //   productName.className = 'catalog_basket__product';
-// //   productName.innerText = row.parentNode.parentNode.childNodes[3].innerText;
-// // }
-// filterContent.addEventListener('click', function(event) {
-//   typeFiltration.push(event.target.innerText);
-//   loadData(container, URL, renderData);
-// });
-//
+var arrayCart = [];
+var btnsToCard = document.querySelectorAll('.catalog_cart__btn .btn');
+var list = document.querySelector('.catalog_basket__list');
+var finalPrice = document.querySelector('.catalog_basket__summ_text');
+
+var noItemsInCart = document.querySelector('.catalog_basket__default');
+
+function calculatePrice() {
+  var price = 0;
+  arrayCart.forEach(function(item, i) {
+    price += item.price;
+  });
+  finalPrice.textContent = price;
+}
+
+function cleanCart() {
+  list.innerHTML = "";
+}
+
+function removeFromCard() {
+  var remItem = this.parentNode.parentNode.attributes[1].nodeValue;
+  arrayCart.forEach(function(item, i) {
+    if (item.id == remItem) {
+      arrayCart.splice(i, 1);
+    }
+  });
+  calculatePrice();
+  renderCart();
+}
+
+function renderCart() {
+  cleanCart();
+  if (arrayCart.length == 0) {
+    noItemsInCart.style.display = 'block';
+  } else {
+    noItemsInCart.style.display = 'none';
+    arrayCart.forEach(function(item, i) {
+      var newItem = document.createElement('div');
+      newItem.className = "catalog_basket__line";
+      newItem.innerHTML = '<div class="catalog_basket__product">' +
+        item.title + '</div>' +
+        '<div class="catalog_basket__price price">' +
+        item.price + '</div>' +
+        '<div class="catalog_basket__close">' +
+        '<img src="img/svg/i-close.png" alt="close">' +
+        '</div>';
+      newItem.setAttribute('id', item.id);
+      newItem.querySelector('.catalog_basket__close img').addEventListener('click', removeFromCard);
+      list.appendChild(newItem);
+    });
+  }
+}
+
 twoForLineBtn.addEventListener('click', function(event) {
   getCurrentClassState(this);
 });
@@ -42,517 +76,97 @@ threeForLineBtn.addEventListener('click', function(event) {
 });
 
 function getCurrentClassState(btn) {
-  if (btn.classList.contains('catalog_view__item--active')) {
-    twoForLineBtn.classList.toggle('catalog_view__item--active');
-    threeForLineBtn.classList.toggle('catalog_view__item--active');
-    container.classList.toggle('catalog__list--two');
-    container.classList.toggle('catalog__list--three');
+  twoForLineBtn.classList.toggle('catalog_view__item--active');
+  threeForLineBtn.classList.toggle('catalog_view__item--active');
+  container.classList.toggle('catalog__list--two');
+  container.classList.toggle('catalog__list--three');
+}
+
+function addToCart(event) {
+  event.preventDefault();
+  var item = this.closest('.catalog_cart');
+  if (!item.classList.contains('catalog_cart--disabled')) {
+    var title = item.querySelector('.catalog_cart__title').textContent;
+    var price = Number(item.dataset.price);
+    var itemObj = {
+      title: title,
+      price: price,
+      id: String(Math.random() + '-' + title),
+    };
+    arrayCart.push(itemObj);
+    calculatePrice();
+    renderCart();
   }
 }
 
-//
-// var cardsItems = {
-//   card1: {
-//     cardId: '001',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'beauty',
-//       dataPrice: '25',
-//       dataDateTo: '11.07.16',
-//       dataDateFrom: '15.08.16',
-//       dataMetro: 'pushkinskaya',
-//       img: 'img/photo-3.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '50%',
-//       title: 'super photosession',
-//       priceOld: '50',
-//       priceNew: '25'
-//     }
-//   },
-//   card2: {
-//     cardId: '002',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'education',
-//       dataPrice: '32',
-//       dataDateTo: '19.06.16',
-//       dataDateFrom: '30.06.16',
-//       dataMetro: 'admiralteiskaya',
-//       img: 'img/photo-9.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '70%',
-//       title: 'it education',
-//       priceOld: '106',
-//       priceNew: '32'
-//     }
-//   },
-//   card3: {
-//     cardId: '003',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'education',
-//       dataPrice: '38',
-//       dataDateTo: '10.05.16',
-//       dataDateFrom: '20.06.16',
-//       dataMetro: 'admiralteiskaya',
-//       img: 'img/photo-7.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '15%',
-//       title: "driver's license",
-//       priceOld: '45',
-//       priceNew: '38'
-//     }
-//   },
-//   card4: {
-//     cardId: '004',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'beauty',
-//       dataPrice: '5',
-//       dataDateTo: '30.05.16',
-//       dataDateFrom: '12.06.16',
-//       dataMetro: 'pushkinskaya',
-//       img: 'img/photo-6.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '80%',
-//       title: 'spa',
-//       priceOld: '26',
-//       priceNew: '5'
-//     }
-//   },
-//   card5: {
-//     cardId: '005',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'beauty',
-//       dataPrice: '8',
-//       dataDateTo: '15.05.16',
-//       dataDateFrom: '30.05.16',
-//       dataMetro: 'pushkinskaya',
-//       img: 'img/photo-5.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '48%',
-//       title: 'tattoo',
-//       priceOld: '17',
-//       priceNew: '8'
-//     }
-//   },
-//   card6: {
-//     cardId: '006',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'entertainment',
-//       dataPrice: '26',
-//       dataDateTo: '15.07.16',
-//       dataDateFrom: '15.09.16',
-//       dataMetro: 'primorskaya',
-//       img: 'img/photo-4.jpg',
-//       timer: {
-//         enable: 'true',
-//         day: '2',
-//         hour: '15',
-//         min: '45',
-//         sec: '5'
-//       },
-//       discount: '63%',
-//       title: 'hourse ride',
-//       priceOld: '42',
-//       priceNew: '26'
-//     }
-//   },
-//   card7: {
-//     cardId: '007',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'beauty',
-//       dataPrice: '23',
-//       dataDateTo: '1.09.16',
-//       dataDateFrom: '20.09.16',
-//       dataMetro: 'pushkinskaya',
-//       img: 'img/photo-1.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '70%',
-//       title: 'relaxing in spa',
-//       priceOld: '33',
-//       priceNew: '23'
-//     }
-//   },
-//   card8: {
-//     cardId: '008',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'food',
-//       dataPrice: '2',
-//       dataDateTo: '3.09.16',
-//       dataDateFrom: '4.09.16',
-//       dataMetro: 'admiralteiskaya',
-//       img: 'img/food-2.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '80%',
-//       title: 'wafer',
-//       priceOld: '10',
-//       priceNew: '2'
-//     }
-//   },
-//   card9: {
-//     cardId: '009',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'food',
-//       dataPrice: '8',
-//       dataDateTo: '20.07.16',
-//       dataDateFrom: '26.07.16',
-//       dataMetro: 'primorskaya',
-//       img: 'img/photo-1.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '49%',
-//       title: 'box of sweet donnuts. wooowww',
-//       priceOld: '15',
-//       priceNew: '8'
-//     }
-//   },
-//   card10: {
-//     cardId: '010',
-//     catalogCartDisabled: 'true',
-//     cardInfo: {
-//       dataType: 'travel',
-//       dataPrice: '99',
-//       dataDateTo: '14.07.16',
-//       dataDateFrom: '14.08.16',
-//       dataMetro: 'primorskaya',
-//       img: 'img/travel.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '1%',
-//       title: 'box of sweet donnuts. wooowww',
-//       priceOld: '100',
-//       priceNew: '99'
-//     }
-//   },
-//   card11: {
-//     cardId: '011',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'education',
-//       dataPrice: '24',
-//       dataDateTo: '1.07.16',
-//       dataDateFrom: '1.08.16',
-//       dataMetro: 'admiralteiskaya',
-//       img: 'img/epixx.jpg',
-//       timer: {
-//         enable: 'false',
-//         day: '0',
-//         hour: '0',
-//         min: '0',
-//         sec: '0'
-//       },
-//       discount: '27%',
-//       title: '27% discount on course of internet marketing',
-//       priceOld: '33',
-//       priceNew: '24'
-//     }
-//   },
-//   card12: {
-//     cardId: '011',
-//     catalogCartDisabled: 'false',
-//     cardInfo: {
-//       dataType: 'entertainment',
-//       dataPrice: '500',
-//       dataDateTo: '10.05.16',
-//       dataDateFrom: '1.08.16',
-//       dataMetro: 'admiralteiskaya',
-//       img: 'img/cat.jpg',
-//       timer: {
-//         enable: 'true',
-//         day: '1',
-//         hour: '3',
-//         min: '40',
-//         sec: '30'
-//       },
-//       discount: '50%',
-//       title: 'one epic cat. best price',
-//       priceOld: '1000',
-//       priceNew: '500'
-//     }
-//   }
-// }
-//
-// addCatalogListItem(cardsItems);
-//
-// function addCatalogListItem(cardsItems) {
-//
-//   var catalog = document.querySelector('.catalog__list');
-//
-//   for (var item in cardsItems) {
-//
-//     var newCatalogItem = document.querySelector('.catalog__item').cloneNode(true);
-//
-//     newCatalogItem.attributes[2].textContent = cardsItems[item].cardInfo.dataMetro;
-//     newCatalogItem.attributes[3].textContent = cardsItems[item].cardInfo.priceOld;
-//     newCatalogItem.attributes[4].textContent = cardsItems[item].cardInfo.dataDateFrom;
-//     newCatalogItem.attributes[5].textContent = cardsItems[item].cardInfo.dataDateTo;
-//     newCatalogItem.attributes[6].textContent = cardsItems[item].cardInfo.dataMetro;
-//     newCatalogItem.childNodes[3].childNodes[1].textContent = cardsItems[item].cardInfo.discount;
-//     newCatalogItem.children[0].firstChild.src = cardsItems[item].cardInfo.img;
-//     newCatalogItem.childNodes[3].childNodes[5].children[0] = cardsItems[item].priceNew;
-//
-//     if (cardsItems[item].cardInfo.timer.enable == 'false') {
-//       catalogCartTimer = newCatalogItem.querySelector('.catalog_cart__timer');
-//       catalogCartImage = newCatalogItem.querySelector('.catalog_cart__image');
-//       catalogCartImage.removeChild(catalogCartTimer);
-//     }
-//
-//     if (cardsItems[item].catalogCartDisabled == 'true') {
-//       catalogCartImage.classList.add('catalog_cart--disabled');
-//     }
-//
-//     var addToCart = newCatalogItem.querySelector('.catalog_cart__btn');
-//     addToCartBtn = addToCart.querySelector('.btn');
-//     addToCartBtn.addEventListener('click', addBasketItem);
-//
-//     catalog.appendChild(newCatalogItem);
-//   };
-//
-//   // var addToCart = newCatalogItem.querySelector('.catalog_cart__btn');
-//   // addToCartBtn = addToCart.querySelector('.btn');
-//   // addToCartBtn.addEventListener('click', addBasketItem);
-//   //
-//   // catalog.appendChild(newCatalogItem);
-//
-//   // var catalog = document.querySelector('.catalog__list');
-//   // var catalogItem = document.createElement('a');
-//   // catalogItem.dataType = "1";
-//   // catalogItem.dataPrice = "2";
-//   // catalogItem.dataPrice = "3";
-//   // catalogItem.dataDateTo = "4";
-//   // catalogItem.dataDateFrom = "5";
-//   // catalogItem.dataMetro = "6";
-//   // catalogItem.className = 'catalog_cart catalog__item catalog_cart--special';
-//   //
-//   // var cartImage = document.createElement('div');
-//   // var image = document.createElement('img');
-//   // image.src = "7";
-//   //
-//   // var cartContent = document.createElement('div');
-//   // cartContent.className = "catalog_cart__content";
-//   //
-//   // var cartDiscount = document.createElement('div');
-//   // cartDiscount.className = "catalog_cart__discount";
-//   // cartDiscount.innerText = "80%";
-//   //
-//   // var cartTitle = document.createElement('p');
-//   // cartTitle.innerText = "one epic cat. best price%";
-//   //
-//   // var cartFooter = document.createElement('div');
-//   // catalog_cart__footer
-//
-// }
-//
-// function renderCart() {
-//   cleanCart();
-//   arrayCart.forEach(function(item, i) {
-//     var newBasketItem = document.createElement('div');
-//     newBasketItem.classList.add('catalog_basket__line');
-//     var newBasketProduct = document.createElement('div');
-//     newBasketProduct.classList.add('catalog_basket__product');
-//     newBasketProduct.textContent = item.title;
-//     newBasketItem.append(newBasketProduct);
-//     var newBasketPrice = document.createElement('div');
-//     newBasketPrice.textContent = item.price;
-//     newBasketPrice.classList.add('catalog_basket__price', 'price');
-//     newBasketItem.append(newBasketPrice);
-//     var newBasketCloseBtn = document.createElement('div');
-//     newBasketCloseBtn.classList.add('catalog_basket__close');
-//     var newBasketCloseBtnImg = document.createElement('img');
-//     newBasketCloseBtnImg.setAttribute('src', 'img/svg/i-close.png');
-//     newBasketCloseBtnImg.setAttribute('alt', 'close');
-//     newBasketCloseBtn.append(newBasketCloseBtnImg);
-//     newBasketCloseBtnImg.addEventListener('click', removeFromCard);
-//     newBasketItem.append(newBasketCloseBtn);
-//     basketlist.append(newBasketItem);
-//   });
-//
-// }
-//
-// function removeFromCard() {
-//
-// }
-//
-// function cleanCart() {
-//   basketlist.innerHTML = '';
-// }
-//
-// function calculatePrice() {
-//   var price = 0;
-//   arrayCart.forEach(function(item) {
-//     price += item.price;
-//   });
-//   finalPrice.textContent = price;
-// }
-//
-function addToCartF(e) {
-  e.preventDefault();
-  var newCartItem = this.closest('.catalog_cart');
-  var title = newCartItem.querySelector('.catalog_cart__title').textContent;
-  var price = Number(newCartItem.dataset.price);
-  var itemObj = {
-    title: title,
-    price: price,
-  };
-  arrayCart.push(itemObj);
-  calculatePrice();
-  renderCart();
+buyBtn.addEventListener('click', function(event) {
+  event.preventDefault();
+  modalUnderlay.style.display = 'block';
+  modalUnderlay.addEventListener('click', closeModalPopup)
+  orderPopup.style.display = 'block';
+  var modalInner = document.querySelector('.modal__inner');
+  var orderBtn = modalInner.querySelector('.btn');
+  orderBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    formValidate(modalInner);
+  });
+});
+
+closePopupBtn.addEventListener('click', function(event) {
+  event.preventDefault();
+  closeModalPopup();
+});
+
+function closeModalPopup() {
+  modalUnderlay.style.display = 'none';
+  orderPopup.style.display = 'none';
 }
-//
-// function addBasketItem() {
-//
-//
-//   var row = this.parentNode;
-//
-//   var newRow = document.createElement('div');
-//   newRow.className = 'catalog_basket__line';
-//
-//   var productName = document.createElement('div');
-//   productName.className = 'catalog_basket__product';
-//   productName.innerText = row.parentNode.parentNode.childNodes[3].innerText;
-//
-//   var productPrice = document.createElement('div');
-//   productPrice.className = 'catalog_basket__price price';
-//   productPrice.innerText = row.parentNode.parentNode.childNodes[5].childNodes[1].childNodes[1].innerText;
-//
-//   var newRowCloseBtn = document.createElement('div');
-//   newRowCloseBtn.className = 'catalog_basket__close';
-//
-//   var img = document.createElement('img');
-//   img.src = 'img/svg/i-close.png';
-//   img.alt = 'close';
-//
-//   newRowCloseBtn.appendChild(img);
-//
-//   newRow.appendChild(productName);
-//   newRow.appendChild(productPrice);
-//   newRow.appendChild(newRowCloseBtn);
-//
-//   basketlist.appendChild(newRow);
-//   carrentBasketSumm(newRow, '+');
-//
-//   newRowCloseBtn.addEventListener('click', removeBasketItem);
-// }
-//
-// function removeBasketItem() {
-//   var row = this.parentNode;
-//   basketlist.removeChild(row);
-//   carrentBasketSumm(row, '-');
-// }
-//
-// function carrentBasketSumm(row, operand) {
-//   var price = row.children[1].textContent;
-//   var sum = document.querySelector('.catalog_basket__summ_text');
-//   if (operand === '-') {
-//     var currenSumm = parseInt(sum.innerText) - parseInt(price);
-//   } else {
-//     var currenSumm = parseInt(sum.innerText) + parseInt(price);
-//   }
-//   sum.innerText = currenSumm;
-// }
-//
-// catalogItems.forEach(function(item, i) {
-//   var addToCart = item.querySelector('.catalog_cart__btn');
-//   addToCartBtn = addToCart.querySelector('.btn');
-//   addToCartBtn.addEventListener('click', addBasketItem);
-// })
-//
-// bascetLines.forEach(function(item, i) {
-//   var closeBtn = item.querySelector('.catalog_basket__close');
-//   closeBtn.addEventListener('click', removeBasketItem);
-// })
-//
-// buyBtn.addEventListener('click', function() {
-//   orderPopup.style.display = 'block';
-// });
-//
-// closePopupBtn.addEventListener('click', function() {
-//   orderPopup.style.display = 'none';
-// });
-//
-// ///////////////////////////
-//
-// var btnsToCard = document.querySelectorAll('.catalog_cart__btn .btn')
-//
-// var cart = [];
-//
-// var item = {
-//   title: 'cart',
-//   price: 200
-// }
-//
-// function addToCart(e) {
-//   e.preventDefault();
-//   var item = this.closest('.catalog_cart');
-//   var title = item
-// }
-//
-// function calc() {
-//   var price = 0;
-//   arrayCart.forEach(function(item, i) {
-//     price += item.price;
-//   });
-//   final
-// }
-//
+
+function formValidate(form) {
+  var fields = form.querySelectorAll('.input');
+  var name = fields[0].value;
+  var phone = fields[1].value;
+  var email = fields[2].value;
+  var errors = "";
+  if (name == "" || phone == "" || email == "") {
+    alert("Все поля должны быть заполнены!");
+    return false;
+  }
+  var reg = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/;
+  if (!reg.test(phone)) {
+    errors += "Неправильный номер телефона\n";
+  }
+
+  var reg = /^.+@.+\..+$/igm;
+  if (!reg.test(email)) {
+    errors += "Неправильный e-mail \n";
+  }
+  if (errors == "")
+    sendOrder();
+  else {
+    alert(errors);
+    return false;
+  }
+
+}
+function sendOrder() {
+  closeModalPopup();
+  loader.style.display = 'block';
+  var sendInterval = setInterval(closeLoaderShowSuccess,1000)
+
+  function closeLoaderShowSuccess() {
+    clearInterval(sendInterval);
+    loader.style.display = 'none';
+    modalSuccess.style.display = 'block';
+    var closeSuccessInterval = setInterval(closeSuccess,1500)
+
+    function closeSuccess() {
+      clearInterval(closeSuccessInterval);
+      modalSuccess.style.display = 'none';
+    }
+  }
+}
+
 function renderData(data) {
   container.innerHTML = '';
   data.forEach(function(item) {
@@ -568,13 +182,11 @@ function renderData(data) {
     newItem.setAttribute('data-metro', item.metro);
     newImgCover.append(newImg);
     var newTimer = document.createElement('div');
-    // newTimer.classList.add('catalog_cart__timer', 'timer');
-    // newImgCover.append(newTimer);
     newImgCover.classList.add('catalog_cart__image');
     newItem.append(newImgCover);
     if (item.special == true) {
       newItem.classList.add('catalog_cart--special');
-      newImg.setAttribute('data-special', 'true');
+      newItem.setAttribute('data-special', true);
       var newTimer = document.createElement('div');
       newTimer.classList.add('catalog_cart__timer', 'timer');
       newTimer.innerHTML = '<div class="timer__item">' +
@@ -624,7 +236,7 @@ function renderData(data) {
     newParToCartBtn.classList.add('btn');
     newParToCartBtn.textContent = 'to cart';
     newToCartBtn.append(newParToCartBtn);
-    newToCartBtn.addEventListener('click', addToCartF);
+    newToCartBtn.addEventListener('click', addToCart);
     newItemFooter.append(newToCartBtn);
     newFooterPar.append(newFooterPriceNew);
     newItemContent.append(newItemFooter);
@@ -640,7 +252,6 @@ function renderData(data) {
 function loadData(container, URL, callback) {
   var xhr = new XMLHttpRequest();
   var xhrLoadTimeout = setTimeout(function() {
-    //toFailedLoadXHR(container);
   }, LOAD_TIMEOUT);
 
   xhr.onload = function(event) {
@@ -648,11 +259,6 @@ function loadData(container, URL, callback) {
     loadedData = JSON.parse(event.target.response);
     callback(loadedData);
   };
-
-  // xhr.onloadend = function() {
-  //   clearTimeout(xhrLoadTimeout);
-  //   container.classList.remove('loading');
-  // };
 
   xhr.onerror = function() {
     xhr.onload = null;
@@ -662,10 +268,8 @@ function loadData(container, URL, callback) {
   xhr.open('GET', URL);
   xhr.send();
 };
-//
+
 loadData(container, URL, renderData);
-
-
 
 function sortArrByPrice(a, b) {
   if ((a.priceNew) > (b.priceNew)) return -1;
@@ -679,23 +283,15 @@ function sortArrByDiscount(a, b) {
 
 function sortByPrice(event) {
   event.preventDefault();
-  //var itemsList = document.querySelectorAll('.catalog_cart');
-
-  // var trueArray = Array.prototype.slice.call(loadedData, 0)
   var sortedArray = loadedData.sort(sortArrByPrice);
   renderData(sortedArray);
 }
 
 function sortByDiscount(event) {
   event.preventDefault();
-  //var itemsList = document.querySelectorAll('.catalog_cart');
-  // loadData(container, URL, )
-  // var trueArray = Array.prototype.slice.call(itemsList, 0)
-  // var sortedArray = trueArray.sort(sortArrByDiscount);
   var sortedArray = loadedData.sort(sortArrByDiscount);
   renderData(sortedArray);
 }
-
 
 var filterTrigerList = document.querySelectorAll('.filter__title');
 filterTrigerList.forEach(function(item) {
@@ -715,37 +311,17 @@ var filters = {
   date: null,
 }
 
-// var filtersInputList = document.querySelectorAll('.checkbox__input');
-// filtersInputList.forEach(function(item) {
-//   item.addEventListener('click', function(event) {
-//
-//   });
-// });
-
 var sortBtns = document.querySelectorAll('.catalog_sort__item');
 sortBtns.forEach(function(item) {
   if (item.textContent == 'price (incr)') {
     item.addEventListener('click', function(event) {
       sortByPrice(event);
     })
-    //
   } else {
     item.addEventListener('click', function(event) {
       sortByDiscount(event);
     });
   }
-  // else {
-  //   item.addEventListener('click', function(event) {
-  //     sortByDiscount(event);
-  //   });
-  // }
-  //     // if (item.textContent == 'price (incr)') {
-  //     //   sortByPrice()
-  //     // } else {
-  //     //   sortByDiscount()
-  //     // }
-  //   });
-
 });
 
 var checkboxesTypes = document.querySelectorAll('.js-filters-type input[type="checkbox"]');
@@ -753,7 +329,6 @@ var specialCheckbox = document.querySelector('.js-filters-special input[type="ch
 var metroStationCheckbox = document.querySelectorAll('.js-filters-metro input[type="checkbox"]');
 var pricesInputs = document.querySelectorAll('.js-filters-price input[type="text"]');
 var dateInput = document.querySelector('.js-filters-date input[type="date"]');
-// var catalogItems = document.querySelectorAll('.catalog__item');
 
 pricesInputs.forEach(function(input) {
   input.addEventListener('change', function() {
@@ -846,9 +421,12 @@ function filterCatalog() {
       }
     }
     //Date
-    // if () {
-    //
-    // }
+
+    if (filters.date >= new Date().setDate(new Date().getDate() - 1)){
+    if (new Date(filters.date) >= new Date(item.dataset.dateTo)) {
+        shouldBeVisible *= 0;
+      }
+    }
 
     if (!shouldBeVisible) {
       item.style.display = 'none';
@@ -913,13 +491,13 @@ function runSpecialTimer(newItem, item) {
   }
 
   function initClock(goal) {
-    var remaining = getTimeRemaining(goal);
+      var remaining = getTimeRemaining(goal);
 
-    if (remaining.total > 0) {
-      updateClock();
-      var timeInterval = setInterval(updateClock, 1000);
-    } else {
-      currentItem.classList.add('catalog_cart--disabled');
+      if (remaining.total > 0) {
+        updateClock();
+        var timeInterval = setInterval(updateClock, 1000);
+      } else {
+        currentItem.classList.add('catalog_cart--disabled');
+      }
     }
   }
-}
